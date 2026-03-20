@@ -26,8 +26,11 @@ Consumes a **design doc** and an **implementation plan**, compares the current c
 **Step 3: Compare to plan and design (completion check)**
 
 - For each **plan task** (Task 1, Task 2, …): check whether the changes address the task (behaviour, files, steps). Mark as done, partial, or not done. Note any plan items with no corresponding changes.
+- Flag changed files that fall outside the plan task's listed `Files` buckets as a potential scope drift that must be called out.
+- Ensure that implemented tests follow the **Given / When / Then** scenarios defined in the plan.
+- Distinguish planned behaviour-preserving refactor from unplanned new behaviour or adjacent changes; report extra unplanned work as a completion gap or scope deviation, not just a polish note.
 - For the **design doc** (sections such as architecture, components, data flow, error handling, testing): check whether the implementation aligns. Note gaps (e.g. "design called for X; no evidence in changes").
-- Produce a short **completion report**: plan tasks (done/partial/not done), design alignment (met/gaps). Do not guess; if unclear, say "unclear — needs manual check."
+- Produce a short **completion report**: plan tasks (done/partial/not done), scope drift (none/noted), design alignment (met/gaps). Do not guess; if unclear, say "unclear — needs manual check."
 
 **Step 4: Run tests and verifications**
 
@@ -37,7 +40,7 @@ Consumes a **design doc** and an **implementation plan**, compares the current c
 **Step 5: Light code review (polish)**
 
 - Review the **changed code** (diffs or key files) at a high level only. Look for obvious polish: dead code, duplicated logic, naming, missing error handling, inconsistent style, comments that say "TODO" or "hack." Do **not** do a full code review (no deep security, no full style guide). Goal: surface a short list of **polish suggestions** that could be fixed before a human reviews.
-- Output: bullet list of polish items (file/area + brief suggestion). If nothing obvious, say "No polish items identified."
+- Output: bullet list of polish items (file/area + brief suggestion). Keep scope drift or unplanned behaviour findings in the completion report, not in polish. If nothing obvious, say "No polish items identified."
 
 **Step 6: Summary**
 
@@ -46,5 +49,6 @@ Consumes a **design doc** and an **implementation plan**, compares the current c
 ## Rules
 
 - Do not claim completion if plan or design has unmet items unless the user has explicitly said they are out of scope.
+- Do not treat out-of-scope file changes or unplanned behaviour as completed work; report them clearly as scope deviations.
 - If tests or build fail, report them clearly; do not suggest "verification passed" for the failing step.
 - Keep the code review step light and explicitly "pre–human review polish" only.
