@@ -10,7 +10,10 @@
 
 **Red light**
 
-- [Implement failing tests for this task's behaviour(s) using Given / When / Then scenarios (e.g., Given <context>, When <action>, Then <outcome>)]
+- **Test level:** [unit / integration / e2e]
+- **Scenarios:**
+  - [Given <context>, When <action>, Then <outcome>]
+  - [Add additional Given / When / Then scenarios only when they catch a meaningfully different wrong implementation]
 
 **Green light**
 

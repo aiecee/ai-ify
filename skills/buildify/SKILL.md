@@ -1,6 +1,7 @@
 ---
 name: buildify
 description: Loads an implementation plan, reviews it critically, then executes each task (Red, Green, Refactor) with verification and per-task user feedback. Use when the user has a plan file and wants to build it.
+compatibility: 'Requires: git, filesystem access, ability to run project test/lint/build commands.'
 ---
 
 # Buildify
@@ -24,15 +25,38 @@ Loads an implementation plan (`docs/plans/YYYY-MM-DD-<topic>.md`), reviews it cr
 
 1. Load the plan (user provides path or use e.g. `docs/plans/YYYY-MM-DD-<topic>.md` at repo root). Read the full file.
 2. Review the plan **critically**. Identify questions (ambiguities, missing details) and concerns (risks, dependencies, order).
+   - Use this checklist during the review:
+     - Are the tasks ordered sensibly, with dependencies and foundations handled before dependent work?
+     - Are the listed files concrete enough to execute without guesswork?
+     - Are the Red light scenarios specific, testable, and clearly tied to behaviour rather than setup?
+     - Does the plan's **Verification** section clearly state any broader checks that must be run?
+     - Are scope boundaries clear, or do any tasks imply adjacent work that is not explicitly planned?
+     - Are there missing dependencies, blockers, or assumptions that would prevent execution?
 3. If there are questions or concerns: list them and ask the user. Wait for answers. Repeat until there are no unresolved questions or concerns.
-4. When satisfied: create a **TodoWrite** with one todo per task (e.g. "Task 1: &lt;behaviour&gt;", "Task 2: …"). Do not create todos again later. Then continue to Phase 2.
+4. When satisfied: create a task list with one entry per plan task (e.g. "Task 1: &lt;behaviour&gt;", "Task 2: …"). Use whatever task-tracking mechanism your environment supports (TodoWrite in Cursor, a checklist comment, or a local scratch file). Do not create the task list again later. Then continue to Phase 2.
 
 ## Phase 2: Execute
+
+Before starting execution:
+
+- **Branch check:** Confirm the current branch is appropriate for this work (i.e. not `main`/`master` directly, unless that is the team's convention).
+- If on `main`/`master` and no feature branch exists, suggest creating one: `git checkout -b <topic-slug>`.
+- Ask the user to confirm before proceeding if the branch situation is unclear.
 
 For **each task** in the plan (in order):
 
 1. **Mark the task todo as in_progress.**
-2. Execute **Red light**: implement only the listed failing tests for the task. Confirm those tests fail for the expected reason before moving on.
+2. Execute **Red light**: implement only the listed failing tests for the task.
+   - **Red light confirmation:**
+     - Run the tests and confirm they fail.
+     - Verify the failure is a meaningful assertion failure (the behaviour is not yet implemented), **not** a setup error such as compile/import errors, missing mocks, or wrong test configuration.
+     - If the test fails for a setup reason rather than a behaviour reason, fix the setup before proceeding. Do not count a setup failure as a valid Red.
+   - **When Red light is impractical:**
+     - If a behaviour cannot reasonably be specified as a failing test first (e.g. a visual UI state, an external webhook), note this explicitly and ask the user whether to:
+       - Use a mock/stub to make it testable
+       - Write the implementation first and add tests after (Green then Red, documented as an exception)
+       - Skip automated testing for this specific behaviour and rely on manual verification
+     - Do not silently skip Red; always surface the decision to the user.
 3. Enter the **Green light / Refactor loop**:
    - **Green light:** implement only the smallest in-scope changes needed to make the Red light tests pass, then rerun the relevant task tests and confirm they pass before moving to Refactor.
    - **Refactor:** make behaviour-preserving cleanup only when it is justified by the current task, then rerun the relevant task tests to confirm the task stays green.
@@ -42,7 +66,13 @@ For **each task** in the plan (in order):
 6. **Show what was implemented** (brief summary: files changed, main changes).
 7. **Show verification output** (if any).
 8. **Ask the user** if there is any feedback.
-9. If the user gives feedback: apply the requested changes, re-enter the Green light / Refactor loop as needed, rerun verification if affected, then ask again for feedback. Repeat until the user has no further feedback (or confirms done).
+9. If the user gives feedback:
+   - **Feedback scope during buildify:**
+     - In-scope feedback: implementation details, test clarity, code quality within the current task
+     - Out-of-scope feedback: changes to the design, new requirements, reordering of tasks
+     - If the user's feedback implies a design or plan change: stop, note that this would require updating the design doc or plan, and ask whether to pause buildify and address that first.
+     - Do not absorb design changes inline; they should be documented before implementation continues.
+   - Apply the requested in-scope changes, re-enter the Green light / Refactor loop as needed, rerun verification if affected, then ask again for feedback. Repeat until the user has no further feedback (or confirms done).
 10. **Mark the task todo as completed.**
 11. Ensure the pending commit contains only the current task's changes. If unrelated staged or unstaged changes are present, stop and ask before committing.
 12. Create a git commit using the task behaviour name as the commit message. Use the behaviour text itself, not the `Task <number>:` prefix.

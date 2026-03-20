@@ -26,6 +26,22 @@ A typical flow looks like this:
 
 `idea -> design doc -> implementation plan -> build tasks -> verification`
 
+```text
+[User idea]
+    |
+    v
+ specify --------------------> docs/plans/YYYY-MM-DD-<topic>-design.md
+    |                                              |
+    |                                              v
+    |                                         planify ---> docs/plans/YYYY-MM-DD-<topic>.md
+    |                                                                  |
+    |                                                                  v
+    |                                                             buildify ---> git commits (one per task)
+    |                                                                                         |
+    |                                                                                         v
+    +-------------------------------------------------------------------------- verifyify ---> verification report
+```
+
 ## Core Skill Map
 
 ### `specify`
