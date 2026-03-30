@@ -1,12 +1,22 @@
 ---
 name: cardify
 description: Transforms a planify-generated plan into Kanban cards—one card per task, each with Red/Green/Refactor flow, linked in dependency order. Use when the user has a plan and wants to create trackable Kanban cards for each task.
-compatibility: 'Requires: Kanban board support, filesystem access, ability to read plan files from docs/plans/.'
+compatibility: 'Requires: Kanban CLI (`kanban`), filesystem access, ability to read plan files from docs/plans/.'
 ---
 
 # Cardify
 
 Transforms a planify-generated implementation plan into a set of Kanban cards—one card per task—ready for tracking and execution. Each card includes the Red light, Green light, Refactor workflow from buildify, and cards are linked in dependency order to match the plan's task sequence.
+
+## CRITICAL: Use the Kanban CLI
+
+**You MUST use the `kanban` CLI to create all cards. Do NOT create markdown files manually.**
+
+- The `kanban` CLI should be available in PATH (use `kanban` command).
+- Use `kanban task create --prompt "<content>"` to create each card.
+- Use `kanban task link --from <task-id> --to <blocking-task-id>` to create dependencies.
+- **NEVER** create `.md` files as a substitute for Kanban cards.
+- **NEVER** invent your own card format—follow the template strictly.
 
 ## Principles
 
@@ -40,31 +50,28 @@ Transforms a planify-generated implementation plan into a set of Kanban cards—
 
 ### 3. Read the task template
 
+**MANDATORY**: Read `skills/cardify/assets/task-template.md` before creating any cards. This template defines the required structure for every Kanban card.
+
 - Read `assets/task-template.md` (relative to this skill directory).
-- This template defines the structure each Kanban card will follow.
+- Use this template exactly as-is for all card content. Do not modify the structure.
 
 ### 4. Create Kanban cards (in plan order)
+
+**IMPORTANT**: Use the `kanban` CLI to create each card. Run commands from your workspace.
 
 For **each task** in the plan, in order:
 
 1. **Create a new Kanban card** using the task template:
-   - **Title**: `Task <number>: <behavior name>`
-   - **Plan link**: Path to the source plan file
-   - **Task number**: The task's position in the plan
-   - **Summary**: 1–2 sentences derived from the task's behavior name and context
-   - **Files table**: Populate Create/Modify/Delete rows from the task's Files section
-   - **Red Light**: Copy the Given/When/Then scenarios, set test level if specified
-   - **Green Light**: Copy the implementation steps
-   - **Refactor**: Copy the refactor items
-   - **Verification**: Include task tests and any broader verification from the plan
+   - Execute: `kanban task create --prompt "<card content>"`
+   - Fill in the card content using `skills/cardify/assets/task-template.md` exactly. Replace the template placeholders with the corresponding values from the task in the plan.
 
 2. **Link to the previous card** (dependency chain):
-   - For Task 1: Note that this is the first task (no predecessor).
-   - For Task 2 and beyond: Add a "Depends on" field linking to the previous task's card.
-   - Use the Kanban system's native linking mechanism (e.g., "blocked by", "depends on", or a markdown link).
+   - For Task 1: No dependency needed (first task).
+   - For Task 2 and beyond: Execute `kanban task link --from <current-task-id> --to <previous-task-id>`
+   - The `--from` task waits on `--to` task (dependency).
 
 3. **Record the card reference**:
-   - Store the card ID or reference for use in linking the next card.
+   - Store the card ID returned by `kanban task create` for use in linking the next card.
 
 4. **Confirm card creation** before proceeding to the next task.
 
@@ -87,12 +94,13 @@ After all cards are created:
 
 ## Rules
 
+- **MANDATORY: Use the `kanban` CLI** for all card operations. Do NOT create markdown files manually.
+- **MANDATORY: Use the template** from `skills/cardify/assets/task-template.md` for all card content. Do NOT invent your own format.
 - Create cards in the exact order tasks appear in the plan; do not reorder.
 - Do not merge multiple tasks into one card; one task = one card.
 - Do not split a single task into multiple cards.
 - Every card must include the Red light, Green light, Refactor sections from the plan.
-- Every card (except the first) must link to the previous card as a dependency.
-- Use the task template structure for all cards; do not invent new formats.
+- Every card (except the first) must link to the previous card as a dependency using `kanban task link`.
 - If the plan has no tasks, stop and report that there is nothing to cardify.
 - If a task is missing required sections (e.g., no Red light), note it but create the card with available content.
 
