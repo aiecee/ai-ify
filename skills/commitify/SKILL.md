@@ -1,18 +1,19 @@
 ---
 name: commitify
-description: Drafts Conventional Commit messages from staged or branch changes by first classifying the change as feat, fix, or chore, then producing a concise subject and optional body. Use when the user asks for help writing a commit message, naming a commit, or summarizing git diff changes into a Conventional Commit.
+description: Drafts Conventional Commit messages from staged or branch changes by first classifying the change as feat, fix, or chore, then producing a concise subject and optional body and committing the selected changes. Use when the user asks for help writing a commit message, naming a commit, summarizing git diff changes into a Conventional Commit, or creating a git commit.
 compatibility: 'Requires: git, filesystem access, and ability to inspect staged or branch changes.'
 ---
 
 # Commitify
 
-Turns staged or pending changes into a Conventional Commit message. Start by asking whether the change should be `feat`, `fix`, or `chore`. If the diff contains multiple unrelated concerns, recommend splitting them into separate commits before drafting anything.
+Turns staged or pending changes into a Conventional Commit message and uses that message to create the git commit. Start by asking whether the change should be `feat`, `fix`, or `chore`. If the diff contains multiple unrelated concerns, recommend splitting them into separate commits before drafting anything.
 
 ## Inputs
 
 - **Change source**: staged diff, working tree diff, or branch diff.
 - **Commit shape**: one commit or a small series of commits.
 - **Commit class**: `feat`, `fix`, or `chore`.
+- **Commit target**: already staged changes only, or a specific set of files that still need staging.
 - **Optional context**: preferred scope, ticket reference, or whether the change is breaking.
 
 ## Workflow
@@ -63,12 +64,20 @@ Turns staged or pending changes into a Conventional Commit message. Start by ask
 - Represent breaking changes in the header with `!`.
 - Put any extra explanation in the body, not in a `BREAKING CHANGE:` footer.
 
-### 8. Self-check before returning the message
+### 8. Self-check before committing
 
 - Confirm the message matches the selected type.
 - Confirm the subject only describes behavior present in the diff.
 - Confirm the wording is concise, imperative, and free of repo-specific jargon unless that jargon appears in the codebase.
 - If any part is ambiguous, say so instead of guessing.
+
+### 9. Create the commit
+
+- If the intended files are not yet staged, stage only the files that belong in this commit.
+- Do not stage unrelated changes just to make the commit succeed.
+- Commit the staged changes using the drafted Conventional Commit message.
+- If the commit fails because hooks modify files or report issues, inspect the result, restage only the relevant files, and retry with a new commit attempt that preserves the same message intent.
+- After the commit succeeds, verify that the commit only captured the intended changes.
 
 ## Rules
 
@@ -81,3 +90,4 @@ Turns staged or pending changes into a Conventional Commit message. Start by ask
 - Prefer one coherent commit message per coherent change.
 - If the diff contains multiple unrelated concerns, recommend separate commits instead of forcing one message.
 - Always represent breaking changes with `!` in the header, not with a `BREAKING CHANGE:` footer.
+- Do not commit unrelated staged or unstaged changes; keep the commit scoped to the selected change set.
