@@ -10,8 +10,11 @@ This repo is organized around a small workflow-oriented set of skills:
 - [`skills/planify`](skills/planify): turns a design doc or requirements into an implementation plan organized into behaviour-focused Red / Green / Refactor tasks.
 - [`skills/buildify`](skills/buildify): executes an implementation plan task by task with scope control, verification, and feedback loops.
 - [`skills/verifyify`](skills/verifyify): checks completed work against the design doc and plan, runs verification, and flags gaps before human review.
+- [`skills/commitify`](skills/commitify): drafts Conventional Commit messages from git changes by classifying work as `feat`, `fix`, or `chore`.
 
 Together, these skills support an end-to-end workflow from idea refinement through implementation and final verification.
+
+`commitify` is an optional helper that fits alongside implementation work whenever you want a consistent commit message for the changes you are about to record.
 
 ## Typical Workflow
 
@@ -60,6 +63,10 @@ Use `buildify` when you want an agent to execute a plan. It works task by task, 
 
 Use `verifyify` when implementation is complete and you want a pre-review verification pass. It compares the current changes against the design and plan, runs tests and checks, and highlights scope drift, missing work, or polish issues.
 
+### `commitify`
+
+Use `commitify` when you want help writing a Conventional Commit message from staged changes, a working tree diff, or a branch diff. It starts by asking whether the change should be a `feat`, `fix`, or `chore`, then drafts a concise subject and optional body.
+
 ## Installation
 
 These skills can be used anywhere that supports `agentskills.io`. If you're using Cursor, one straightforward option is to link them into `~/.cursor/skills/`.
@@ -81,6 +88,7 @@ If you only want a subset of the skills, link the individual directories you nee
 - Use `planify` after the design is approved: "Create an implementation plan for the wishlist design."
 - Use `buildify` once the plan exists: "Implement `docs/plans/YYYY-MM-DD-wishlist.md`."
 - Use `verifyify` before human review: "Verify the wishlist implementation against the design doc and plan."
+- Use `commitify` when the code is ready to record: "Draft a Conventional Commit message for the staged changes."
 - Use the same skill flow whether you're working in Cursor, Claude, Cline, or another agent environment that supports `agentskills.io`.
 
 ## What Is Not In This Repo
