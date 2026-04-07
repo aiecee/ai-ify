@@ -1,6 +1,6 @@
 # ai-ify
 
-`ai-ify` is a small library of reusable agent skills that help teams go from idea to design, plan, build, and verification with a more consistent workflow.
+`ai-ify` is a small library of reusable agent skills that help teams go from idea to design, planning, tracked execution, verification, and final commit creation with a more consistent workflow.
 
 ## What This Repo Contains
 
@@ -8,13 +8,14 @@ This repo is organized around a small workflow-oriented set of skills:
 
 - [`skills/specify`](skills/specify): turns an idea into a design doc through a structured discovery and approval flow.
 - [`skills/planify`](skills/planify): turns a design doc or requirements into an implementation plan organized into behaviour-focused Red / Green / Refactor tasks.
+- [`skills/cardify`](skills/cardify): turns a `planify` plan into Kanban cards, one card per task, linked in dependency order for teams that want tracked execution.
 - [`skills/buildify`](skills/buildify): executes an implementation plan task by task with scope control, verification, and feedback loops.
 - [`skills/verifyify`](skills/verifyify): checks completed work against the design doc and plan, runs verification, and flags gaps before human review.
-- [`skills/commitify`](skills/commitify): drafts Conventional Commit messages from git changes by classifying work as `feat`, `fix`, or `chore`.
+- [`skills/commitify`](skills/commitify): classifies changes, drafts a Conventional Commit message, and creates the git commit.
 
-Together, these skills support an end-to-end workflow from idea refinement through implementation and final verification.
+Together, these skills support an end-to-end workflow from idea refinement through planning, tracked execution, verification, and final commit creation.
 
-`commitify` is an optional helper that fits alongside implementation work whenever you want a consistent commit message for the changes you are about to record.
+`cardify` is optional when you want Kanban tracking for a plan. `commitify` is the final recording step once the work has been verified.
 
 ## Typical Workflow
 
@@ -22,12 +23,14 @@ These skills usually work best in this order:
 
 1. `specify` to turn a rough idea into a design document.
 2. `planify` to turn that design into an implementation plan with concrete tasks.
-3. `buildify` to execute the plan task by task.
-4. `verifyify` to confirm the implementation matches the plan and design.
+3. Optionally `cardify` to turn the plan into Kanban cards for tracking.
+4. `buildify` to execute the plan task by task.
+5. `verifyify` to confirm the implementation matches the plan and design.
+6. `commitify` to create the final Conventional Commit once the work is verified.
 
 A typical flow looks like this:
 
-`idea -> design doc -> implementation plan -> build tasks -> verification`
+`idea -> design doc -> implementation plan -> tracked execution -> verification -> commit`
 
 ```text
 [User idea]
@@ -38,11 +41,13 @@ A typical flow looks like this:
     |                                              v
     |                                         planify ---> docs/plans/YYYY-MM-DD-<topic>.md
     |                                                                  |
+    |                                                                  +----> cardify (optional) ---> Kanban cards
+    |                                                                  |
     |                                                                  v
-    |                                                             buildify ---> git commits (one per task)
+    |                                                             buildify ---> implemented changes
     |                                                                                         |
     |                                                                                         v
-    +-------------------------------------------------------------------------- verifyify ---> verification report
+    +-------------------------------------------------------------------------- verifyify ---> verified changes ---> commitify ---> final commit
 ```
 
 ## Core Skill Map
@@ -55,6 +60,10 @@ Use `specify` when you have an idea and want help shaping it into an approved de
 
 Use `planify` when you already have a design doc, spec, or clear requirements and want an implementation plan. It splits work into vertical tasks by behaviour and structures each task around `Red light`, `Green light`, and `Refactor`.
 
+### `cardify`
+
+Use `cardify` when you want to track a `planify` plan in a Kanban board before or during execution. It creates one card per task, preserves task order as dependencies, and uses the `kanban` CLI to put those cards in the shared project board.
+
 ### `buildify`
 
 Use `buildify` when you want an agent to execute a plan. It works task by task, keeps execution inside the task scope, uses a Red / Green / Refactor loop, verifies progress, and incorporates feedback before moving on.
@@ -65,7 +74,7 @@ Use `verifyify` when implementation is complete and you want a pre-review verifi
 
 ### `commitify`
 
-Use `commitify` when you want help writing a Conventional Commit message from staged changes, a working tree diff, or a branch diff. It starts by asking whether the change should be a `feat`, `fix`, or `chore`, then drafts a concise subject and optional body.
+Use `commitify` when you want to turn staged changes, a working tree diff, or a branch diff into a Conventional Commit. It starts by asking whether the change should be a `feat`, `fix`, or `chore`, drafts a concise subject and optional body, and then uses that message to create the commit.
 
 ## Installation
 
@@ -80,15 +89,16 @@ for skill in skills/*; do
 done
 ```
 
-If you only want a subset of the skills, link the individual directories you need instead. For other agent tools, use the setup approach that matches that tool's `agentskills.io` integration model.
+If you only want a subset of the skills, link the individual directories you need instead. `cardify` also expects the `kanban` CLI to be available when you use it. For other agent tools, use the setup approach that matches that tool's `agentskills.io` integration model.
 
 ## Usage Examples
 
 - Use `specify` when the request is still fuzzy: "Design a wishlist feature for the app."
 - Use `planify` after the design is approved: "Create an implementation plan for the wishlist design."
+- Use `cardify` when you want a tracked backlog before execution: "Turn `docs/plans/YYYY-MM-DD-wishlist.md` into Kanban cards."
 - Use `buildify` once the plan exists: "Implement `docs/plans/YYYY-MM-DD-wishlist.md`."
 - Use `verifyify` before human review: "Verify the wishlist implementation against the design doc and plan."
-- Use `commitify` when the code is ready to record: "Draft a Conventional Commit message for the staged changes."
+- Use `commitify` after verification when the change is ready to record: "Create a Conventional Commit for the verified wishlist changes."
 - Use the same skill flow whether you're working in Cursor, Claude, Cline, or another agent environment that supports `agentskills.io`.
 
 ## What Is Not In This Repo
